@@ -104,3 +104,11 @@ InitTestScene*.unity*
 
 # Auto-generated cache in Assets folder
 /[Aa]ssets/[Ss]ceneDependencyCache*
+
+# MacOS annoying ass DS_Store file
+
+*.DS_Store
+
+# MacOS annoying ass DS_Store file
+
+*.DS_Store
