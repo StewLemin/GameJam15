@@ -1,13 +1,10 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-/// <summary>
-/// Put this on any single GameObject in the scene (e.g. an empty "GameManager" object,
-/// or the object holding your CinemachineBrain). Assign every possessable capsule to
-/// `capsules` in the inspector. Pressing E raycasts from the currently-active capsule's
-/// camera pivot; if it hits another listed capsule, control + camera priority swap to it
-/// and Cinemachine blends automatically.
-/// </summary>
+// Inside of an empty GameObject in the scene Assign every possessable capsule to
+// `capsules` in the inspector. Pressing E raycasts from the currently-active capsule's
+// camera pivot; if it hits another listed capsule, control + camera priority swap to it
+// and Cinemachine blends automatically.
 public class CapsuleSwitcher : MonoBehaviour
 {
     [Tooltip("Every capsule that can be possessed. Whichever one has isActive = true " +
@@ -59,6 +56,8 @@ public class CapsuleSwitcher : MonoBehaviour
         if (Physics.Raycast(ray, out RaycastHit hit, interactRange, interactMask))
         {
             PlayerMovement target = hit.collider.GetComponentInParent<PlayerMovement>();
+
+            Debug.Log($"Hit: {hit.collider?.name}, resolved target: {target?.name}, current: {current.name}");
 
             if (target != null && target != current && System.Array.IndexOf(capsules, target) >= 0)
             {

@@ -1,6 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem; // <-- so the new system
-using Unity.Cinemachine;       // Cinemachine 3.x. On Cinemachine 2.x use `using Cinemachine;`
+using Unity.Cinemachine;
 
 [RequireComponent(typeof(CharacterController))]
 public class PlayerMovement : MonoBehaviour
@@ -13,8 +13,6 @@ public class PlayerMovement : MonoBehaviour
     private Vector3 velocity;
 
     [Header("Camera")]
-    // Replaces the old `public Camera playerCamera`. This is the empty child transform
-    // that the CinemachineCamera lives under (same spot your Camera object used to sit).
     public Transform cameraPivot;
     public CinemachineCamera vcam; // the CinemachineCamera parented under cameraPivot
     public float lookSpeed = 2f;
@@ -37,6 +35,7 @@ public class PlayerMovement : MonoBehaviour
     void Update()
     {
         if (!isActive) return; // capsules we're not currently controlling ignore input entirely
+        // Will add NPC behavior here later
 
         if (Keyboard.current != null)
         {
@@ -92,7 +91,7 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    /// <summary>Called by CapsuleSwitcher when this capsule becomes the one you control.</summary>
+    /// Called by CapsuleSwitcher when this capsule becomes the one you control.
     public void Possess()
     {
         isActive = true;
@@ -100,6 +99,7 @@ public class PlayerMovement : MonoBehaviour
         if (vcam != null)
         {
             // Raise this vcam's priority above the others so CinemachineBrain blends to it.
+            Debug.Log($"Possessing {name}, raising {vcam.Priority.Value} priority to 20");
             vcam.Priority = new PrioritySettings { Enabled = true, Value = 20 };
         }
 
@@ -107,7 +107,7 @@ public class PlayerMovement : MonoBehaviour
         Cursor.visible = false;
     }
 
-    /// <summary>Called by CapsuleSwitcher when control moves to a different capsule.</summary>
+    /// Called by CapsuleSwitcher when control moves to a different capsule.
     public void Unpossess()
     {
         isActive = false;
@@ -115,7 +115,9 @@ public class PlayerMovement : MonoBehaviour
 
         if (vcam != null)
         {
-            vcam.Priority = new PrioritySettings { Enabled = true, Value = 0 };
+            // Lower vcam priority
+            Debug.Log($"Unpossessing {name}, lowering {vcam.Priority.Value} priority to 0");
+            vcam.Priority = new PrioritySettings { Enabled = false, Value = 0 };
         }
     }
 }
