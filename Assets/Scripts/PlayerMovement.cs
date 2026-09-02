@@ -1,35 +1,55 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem; // <-- so the new system
+using Unity.Cinemachine;       // Cinemachine 3.x. On Cinemachine 2.x use `using Cinemachine;`
 
+[RequireComponent(typeof(CharacterController))]
 public class PlayerMovement : MonoBehaviour
 {
     [Header("Movement")]
     public float moveSpeed = 5f;
-    public float jumpHeight = 5f;
+    public float jumpHeight = 1f;
     public float gravity = -9.81f;
     private CharacterController ch;
     private Vector3 velocity;
 
-    [Header("Camera Direction")]
-    public Camera playerCamera;
+    [Header("Camera")]
+    // Replaces the old `public Camera playerCamera`. This is the empty child transform
+    // that the CinemachineCamera lives under (same spot your Camera object used to sit).
+    public Transform cameraPivot;
+    public CinemachineCamera vcam; // the CinemachineCamera parented under cameraPivot
     public float lookSpeed = 2f;
-    public float lookXLimit = 85f; // loop up constraint
+    public float lookXLimit = 85f; // look up/down constraint
 
     private float rotationX = 0f;
+
+    [Header("Possession")]
+    [Tooltip("Only the currently-possessed capsule reads input and drives its vcam.")]
+    public bool isActive = true;
 
     void Start()
     {
         ch = GetComponent<CharacterController>();
-        Cursor.lockState = CursorLockMode.Locked; // center cursor
-        Cursor.visible = false; // hide cursor
+
+        if (isActive) Possess();
+        else Unpossess();
     }
 
     void Update()
     {
+        if (!isActive) return; // capsules we're not currently controlling ignore input entirely
+
         if (Keyboard.current != null)
         {
+            // Sprinting
+            if (Keyboard.current.leftShiftKey.isPressed)
+            {
+                moveSpeed = 8f;
+            }
+            else
+            {
+                moveSpeed = 5f;
+            }
+
             // WASD Movement
             float x = 0f;
             float z = 0f;
@@ -42,7 +62,6 @@ public class PlayerMovement : MonoBehaviour
             // Move in direction of camera
             Vector3 move = (transform.forward * z) + (transform.right * x);
             ch.Move(move * moveSpeed * Time.deltaTime);
-
 
             // Jumping
             if (ch.isGrounded && velocity.y < 0)
@@ -60,16 +79,43 @@ public class PlayerMovement : MonoBehaviour
             ch.Move(velocity * Time.deltaTime);
         }
 
-        if (Mouse.current != null && playerCamera != null)
+        if (Mouse.current != null && cameraPivot != null)
         {
             Vector2 mouseDelta = Mouse.current.delta.ReadValue();
 
             rotationX -= mouseDelta.y * lookSpeed * 0.1f;
             rotationX = Mathf.Clamp(rotationX, -lookXLimit, lookXLimit);
-            playerCamera.transform.localRotation = Quaternion.Euler(rotationX, 0, 0);
+            cameraPivot.localRotation = Quaternion.Euler(rotationX, 0, 0);
 
             // Rotate body with camera
             transform.rotation *= Quaternion.Euler(0, mouseDelta.x * lookSpeed * 0.1f, 0);
+        }
+    }
+
+    /// <summary>Called by CapsuleSwitcher when this capsule becomes the one you control.</summary>
+    public void Possess()
+    {
+        isActive = true;
+
+        if (vcam != null)
+        {
+            // Raise this vcam's priority above the others so CinemachineBrain blends to it.
+            vcam.Priority = new PrioritySettings { Enabled = true, Value = 20 };
+        }
+
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+    }
+
+    /// <summary>Called by CapsuleSwitcher when control moves to a different capsule.</summary>
+    public void Unpossess()
+    {
+        isActive = false;
+        velocity = Vector3.zero;
+
+        if (vcam != null)
+        {
+            vcam.Priority = new PrioritySettings { Enabled = true, Value = 0 };
         }
     }
 }
