@@ -385,6 +385,7 @@ MonoBehaviour:
   interactMask:
     serializedVersion: 2
     m_Bits: 4294967295
+  raySkin: 0.6
 --- !u!4 &529873737
 Transform:
   m_ObjectHideFlags: 0
@@ -413,7 +414,7 @@ GameObject:
   - component: {fileID: 762375151}
   - component: {fileID: 762375150}
   m_Layer: 0
-  m_Name: Cube (1)
+  m_Name: Wall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -628,6 +629,7 @@ GameObject:
   - component: {fileID: 1346925729}
   - component: {fileID: 1346925728}
   - component: {fileID: 1346925735}
+  - component: {fileID: 1346925736}
   m_Layer: 0
   m_Name: FirstPlayer
   m_TagString: Player
@@ -709,6 +711,7 @@ MeshRenderer:
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: 906bdb2d80f7f0f4f836d44f969b9edf, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -773,9 +776,22 @@ MonoBehaviour:
   gravity: -9.81
   cameraPivot: {fileID: 478070306}
   vcam: {fileID: 478070305}
+  highlight: {fileID: 1346925736}
   lookSpeed: 2
   lookXLimit: 85
   isActive: 1
+--- !u!114 &1346925736
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1346925726}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c3256cf12f8ec04280f1aa11e36064a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Highlightable
 --- !u!1 &1351692065
 GameObject:
   m_ObjectHideFlags: 0
@@ -790,6 +806,7 @@ GameObject:
   - component: {fileID: 1351692068}
   - component: {fileID: 1351692067}
   - component: {fileID: 1351692066}
+  - component: {fileID: 1351692072}
   m_Layer: 0
   m_Name: NPC2
   m_TagString: Untagged
@@ -814,6 +831,7 @@ MonoBehaviour:
   gravity: -9.81
   cameraPivot: {fileID: 13965107}
   vcam: {fileID: 13965106}
+  highlight: {fileID: 1351692072}
   lookSpeed: 2
   lookXLimit: 85
   isActive: 0
@@ -891,6 +909,7 @@ MeshRenderer:
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: 906bdb2d80f7f0f4f836d44f969b9edf, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -938,6 +957,18 @@ Transform:
   - {fileID: 13965107}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 93.385, z: 0}
+--- !u!114 &1351692072
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1351692065}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c3256cf12f8ec04280f1aa11e36064a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Highlightable
 --- !u!1 &1494053638
 GameObject:
   m_ObjectHideFlags: 0
@@ -952,6 +983,7 @@ GameObject:
   - component: {fileID: 1494053639}
   - component: {fileID: 1494053644}
   - component: {fileID: 1494053643}
+  - component: {fileID: 1494053645}
   m_Layer: 0
   m_Name: NPC1
   m_TagString: Untagged
@@ -1008,6 +1040,7 @@ MeshRenderer:
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: 906bdb2d80f7f0f4f836d44f969b9edf, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1072,6 +1105,7 @@ MonoBehaviour:
   gravity: -9.81
   cameraPivot: {fileID: 1876435646}
   vcam: {fileID: 1876435647}
+  highlight: {fileID: 1494053645}
   lookSpeed: 2
   lookXLimit: 85
   isActive: 0
@@ -1100,6 +1134,18 @@ CharacterController:
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &1494053645
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1494053638}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c3256cf12f8ec04280f1aa11e36064a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Highlightable
 --- !u!1 &1832698506
 GameObject:
   m_ObjectHideFlags: 0
