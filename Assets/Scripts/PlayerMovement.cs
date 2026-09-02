@@ -15,6 +15,7 @@ public class PlayerMovement : MonoBehaviour
     [Header("Camera")]
     public Transform cameraPivot;
     public CinemachineCamera vcam; // the CinemachineCamera parented under cameraPivot
+    public Highlightable highlight; // the outline toggle on this capsule's mesh child
     public float lookSpeed = 2f;
     public float lookXLimit = 85f; // look up/down constraint
 
@@ -35,7 +36,7 @@ public class PlayerMovement : MonoBehaviour
     void Update()
     {
         if (!isActive) return; // capsules we're not currently controlling ignore input entirely
-        // Will add NPC behavior here later
+                               // Will add NPC behavior here later
 
         if (Keyboard.current != null)
         {

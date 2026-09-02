@@ -1,10 +1,13 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-// Inside of an empty GameObject in the scene Assign every possessable capsule to
-// `capsules` in the inspector. Pressing E raycasts from the currently-active capsule's
-// camera pivot; if it hits another listed capsule, control + camera priority swap to it
-// and Cinemachine blends automatically.
+/// <summary>
+/// Put this on any single GameObject in the scene (e.g. an empty "GameManager" object,
+/// or the object holding your CinemachineBrain). Assign every possessable capsule to
+/// `capsules` in the inspector. Each frame it raycasts from the currently-active
+/// capsule's camera pivot to find what you're looking at and toggles its outline via
+/// `Highlightable`. Pressing E swaps possession to whatever's currently highlighted.
+/// </summary>
 public class CapsuleSwitcher : MonoBehaviour
 {
     [Tooltip("Every capsule that can be possessed. Whichever one has isActive = true " +
@@ -17,7 +20,12 @@ public class CapsuleSwitcher : MonoBehaviour
     [Tooltip("Layers the interact raycast should hit. Defaults to everything.")]
     public LayerMask interactMask = ~0;
 
+    [Tooltip("Push the ray origin forward past your own collider by this much so you " +
+             "don't immediately hit yourself.")]
+    public float raySkin = 1.1f;
+
     private PlayerMovement current;
+    private PlayerMovement lookTarget;
 
     void Start()
     {
@@ -39,32 +47,67 @@ public class CapsuleSwitcher : MonoBehaviour
 
     void Update()
     {
-        if (Keyboard.current == null || current == null) return;
+        if (current == null) return;
 
-        if (Keyboard.current.eKey.wasPressedThisFrame)
+        UpdateHighlight();
+
+        if (Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame)
         {
             TrySwitch();
         }
     }
 
-    private void TrySwitch()
+    private void UpdateHighlight()
     {
-        if (current.cameraPivot == null) return;
+        PlayerMovement newTarget = GetLookTarget();
+        if (newTarget == lookTarget) return;
 
-        Ray ray = new Ray(current.cameraPivot.position, current.cameraPivot.forward);
+        if (lookTarget != null && lookTarget.highlight != null)
+        {
+            lookTarget.highlight.SetHighlighted(false);
+        }
+
+        lookTarget = newTarget;
+
+        if (lookTarget != null && lookTarget.highlight != null)
+        {
+            lookTarget.highlight.SetHighlighted(true);
+        }
+    }
+
+    private PlayerMovement GetLookTarget()
+    {
+        if (current.cameraPivot == null) return null;
+
+        Vector3 origin = current.cameraPivot.position + current.cameraPivot.forward * raySkin;
+        Ray ray = new Ray(origin, current.cameraPivot.forward);
 
         if (Physics.Raycast(ray, out RaycastHit hit, interactRange, interactMask))
         {
             PlayerMovement target = hit.collider.GetComponentInParent<PlayerMovement>();
 
-            Debug.Log($"Hit: {hit.collider?.name}, resolved target: {target?.name}, current: {current.name}");
-
             if (target != null && target != current && System.Array.IndexOf(capsules, target) >= 0)
             {
-                current.Unpossess();
-                target.Possess();
-                current = target;
+                return target;
             }
         }
+
+        return null;
+    }
+
+    private void TrySwitch()
+    {
+        if (lookTarget == null) return;
+
+        if (lookTarget.highlight != null)
+        {
+            lookTarget.highlight.SetHighlighted(false);
+        }
+
+        current.Unpossess();
+        lookTarget.Possess();
+        current = lookTarget;
+        current.highlight.SetHighlighted(false);
+        lookTarget = null;
     }
 }
