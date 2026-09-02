@@ -107,8 +107,4 @@ InitTestScene*.unity*
 
 # MacOS annoying ass DS_Store file
 
-*.DS_Store
-
-# MacOS annoying ass DS_Store file
-
-*.DS_Store
+**.DS_Store
