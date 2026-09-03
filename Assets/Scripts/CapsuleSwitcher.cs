@@ -1,13 +1,10 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-/// <summary>
-/// Put this on any single GameObject in the scene (e.g. an empty "GameManager" object,
-/// or the object holding your CinemachineBrain). Assign every possessable capsule to
-/// `capsules` in the inspector. Each frame it raycasts from the currently-active
-/// capsule's camera pivot to find what you're looking at and toggles its outline via
-/// `Highlightable`. Pressing E swaps possession to whatever's currently highlighted.
-/// </summary>
+// Inside a GameManager object, Assign every possessable capsule to
+// capsules in the inspector. Each frame it raycasts from the currently-active
+// capsule's camera pivot to find what you're looking at and toggles its outline via
+// Highlightable. Pressing E swaps possession to whatever's currently highlighted.
 public class CapsuleSwitcher : MonoBehaviour
 {
     [Tooltip("Every capsule that can be possessed. Whichever one has isActive = true " +
@@ -53,22 +50,23 @@ public class CapsuleSwitcher : MonoBehaviour
 
         if (Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame)
         {
-            TrySwitch();
+            TrySwitch(); // will fail if not highlighted
         }
     }
 
     private void UpdateHighlight()
     {
         PlayerMovement newTarget = GetLookTarget();
-        if (newTarget == lookTarget) return;
+        if (newTarget == lookTarget) return; // No change in target
 
+        // We can assume a new target, so remove old highlight
         if (lookTarget != null && lookTarget.highlight != null)
         {
             lookTarget.highlight.SetHighlighted(false);
         }
 
+        // Set the new highlight
         lookTarget = newTarget;
-
         if (lookTarget != null && lookTarget.highlight != null)
         {
             lookTarget.highlight.SetHighlighted(true);
@@ -79,15 +77,18 @@ public class CapsuleSwitcher : MonoBehaviour
     {
         if (current.cameraPivot == null) return null;
 
+        // Starting point a bit outside the bean to not collide with itself (or it's outline)
         Vector3 origin = current.cameraPivot.position + current.cameraPivot.forward * raySkin;
         Ray ray = new Ray(origin, current.cameraPivot.forward);
 
         if (Physics.Raycast(ray, out RaycastHit hit, interactRange, interactMask))
         {
+            // We are looking at a collider
             PlayerMovement target = hit.collider.GetComponentInParent<PlayerMovement>();
 
             if (target != null && target != current && System.Array.IndexOf(capsules, target) >= 0)
             {
+                // We are looking at a player
                 return target;
             }
         }
@@ -101,13 +102,14 @@ public class CapsuleSwitcher : MonoBehaviour
 
         if (lookTarget.highlight != null)
         {
+            // set the highlight off before switching, so we don't 
+            // leave it on when we switch to a new capsule
             lookTarget.highlight.SetHighlighted(false);
         }
 
         current.Unpossess();
         lookTarget.Possess();
         current = lookTarget;
-        current.highlight.SetHighlighted(false);
         lookTarget = null;
     }
 }
