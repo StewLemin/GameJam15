@@ -5,7 +5,8 @@ using UnityEngine.InputSystem;
 // capsules in the inspector. Each frame it raycasts from the currently-active
 // capsule's camera pivot to find what you're looking at and toggles its outline via
 // Highlightable. Pressing E swaps possession to whatever's currently highlighted.
-public class CapsuleSwitcher : MonoBehaviour
+[RequireComponent(typeof(AudioSource))]
+public class CapsuleSwitcherWSound : MonoBehaviour
 {
     [Tooltip("Every capsule that can be possessed. Whichever one has isActive = true " +
              "in the inspector at scene start is treated as the starting capsule.")]
@@ -21,11 +22,22 @@ public class CapsuleSwitcher : MonoBehaviour
              "don't immediately hit yourself.")]
     public float raySkin = 1.1f;
 
+    [Header("Audio Settings")]
+    [Tooltip("Sound played when successfully teleporting/swapping.")]
+    public AudioClip teleportSuccessSound;
+
+    [Tooltip("Sound played when E is pressed but no target is highlighted.")]
+    public AudioClip teleportFailSound;
+
     private PlayerMovement current;
     private PlayerMovement lookTarget;
+    private AudioSource audioSource;
 
     void Start()
     {
+        // Cache the AudioSource component on this GameObject
+        audioSource = GetComponent<AudioSource>();
+
         foreach (var c in capsules)
         {
             if (c != null && c.isActive)
@@ -50,7 +62,6 @@ public class CapsuleSwitcher : MonoBehaviour
 
         if (Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame)
         {
-            
             TrySwitch(); // will fail if not highlighted
         }
     }
@@ -99,7 +110,15 @@ public class CapsuleSwitcher : MonoBehaviour
 
     private void TrySwitch()
     {
-        if (lookTarget == null) return;
+        // Play fail sound if there's no valid target highlighted
+        if (lookTarget == null)
+        {
+            PlaySound(teleportFailSound);
+            return;
+        }
+
+        // Play success sound when switching occurs
+        PlaySound(teleportSuccessSound);
 
         if (lookTarget.highlight != null)
         {
@@ -112,5 +131,14 @@ public class CapsuleSwitcher : MonoBehaviour
         lookTarget.Possess();
         current = lookTarget;
         lookTarget = null;
+    }
+
+    private void PlaySound(AudioClip clip)
+    {
+        if (clip != null && audioSource != null)
+        {
+            // PlayOneShot allows overlapping sound effects without interrupting previous ones
+            audioSource.PlayOneShot(clip);
+        }
     }
 }
