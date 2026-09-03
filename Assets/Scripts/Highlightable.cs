@@ -1,11 +1,10 @@
 using UnityEngine;
 
-/// <summary>
-/// Put this on the child object that has the MeshRenderer with the outline material
-/// already assigned as its second material slot (as set up in the inspector).
-/// At Awake it captures that [base, outline] array, then SetHighlighted swaps between
-/// showing just the base material and showing both.
-/// </summary>
+// Script placed on the child objects that have the MeshRenderer with the outline material
+// already assigned as its second material slot (set up in the inspector).
+// At Awake it captures that [base, outline] array, then CapsuleSwitcher calls 
+// SetHighlighted to swap between showing just the base material and showing both,
+// Depending on whether the player is looking at this capsule or not.
 [RequireComponent(typeof(MeshRenderer))]
 public class Highlightable : MonoBehaviour
 {
