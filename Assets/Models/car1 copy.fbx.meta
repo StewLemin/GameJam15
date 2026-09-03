@@ -1,9 +1,47 @@
 fileFormatVersion: 2
+<<<<<<< HEAD
+guid: 61b9656ce57b8403f9532c0682c8f73c
+ModelImporter:
+  serializedVersion: 24300
+  internalIDToNameTable: []
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Car
+    second: {fileID: 2100000, guid: dcda42cd7868d4707b751cd264a8d202, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Headlights
+    second: {fileID: 2100000, guid: 6caec66580d6347558af1dbc3a698889, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material
+    second: {fileID: 2100000, guid: c0739b5790cb14fdfaf7c9db561de8b3, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Tire_
+    second: {fileID: 2100000, guid: 3fb8bc388e7ec4139aad9d6dd8558398, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Wheel
+    second: {fileID: 2100000, guid: 9f57d2a75ba264fbfa59b46bb337e57b, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Window
+    second: {fileID: 2100000, guid: f509593143ae9411aabaa58ed4ff7ac5, type: 2}
+=======
 guid: 2113bd769d0fd21168fdbf2abf37d322
 ModelImporter:
   serializedVersion: 24300
   internalIDToNameTable: []
   externalObjects: {}
+>>>>>>> 85fe66c3b405be42db3d9bba291236807f81e7ff
   materials:
     materialImportMode: 2
     materialName: 0
