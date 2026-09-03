@@ -5,7 +5,7 @@ using System.Collections.Generic;
 public class NPCBrain : MonoBehaviour
 {
     public enum AIMode { staticRoute, walkRandomly }
-    [Header("Instellingen")]
+    [Header("Settings")]
     public AIMode mode = AIMode.walkRandomly;
     public float moveSpeed = 5f;
     public PlayerMovement _playerMovement; // To get the isActive state from the movement script
