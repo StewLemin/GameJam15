@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem; // <-- so the new system
+using Unity.Cinemachine;
+
 [RequireComponent(typeof(CharacterController))]
 public class PlayerMovement : MonoBehaviour
 {
@@ -22,10 +24,12 @@ public class PlayerMovement : MonoBehaviour
     private CharacterController ch;
     private Vector3 velocity;
 
-    [Header("Camera Direction")]
-    public Camera playerCamera;
+    [Header("Camera")]
+    public Transform cameraPivot;
+    public CinemachineCamera vcam; // the CinemachineCamera parented under cameraPivot
+    public Highlightable highlight; // the outline toggle on this capsule's mesh child
     public float lookSpeed = 2f;
-    public float lookXLimit = 85f; // loop up constraint
+    public float lookXLimit = 85f; // look up/down constraint
 
     private float rotationX = 0f;
     
@@ -67,9 +71,16 @@ public class PlayerMovement : MonoBehaviour
     public float coyoteTime = 0.1f;
     public float jumpBuffer = 0.1f;
 
+    [Header("Possession")]
+    [Tooltip("Only the currently-possessed capsule reads input and drives its vcam.")]
+    public bool isActive = true;
+
     void Start()
     {
         ch = GetComponent<CharacterController>();
+
+        if (isActive) Possess();
+        else Unpossess();
         Cursor.lockState = CursorLockMode.Locked; // center cursor
         Cursor.visible = false; // hide cursor
         hState =  HorizontalState.IDLE;
@@ -80,7 +91,8 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
-        
+        if (!isActive) return; // capsules we're not currently controlling ignore input entirely
+                               // Will add NPC behavior here later
 
         
         coyoteTime = coyoteTime - Time.deltaTime;
@@ -119,7 +131,7 @@ public class PlayerMovement : MonoBehaviour
 
         if (Keyboard.current.leftShiftKey.isPressed && hState == HorizontalState.WALK)
             {
-                HorizontalState state = HorizontalState.RUN;
+                hState = HorizontalState.RUN;
             }
 
         if (Keyboard.current.spaceKey.isPressed && vState == VerticalState.GROUNDED)
@@ -134,7 +146,7 @@ public class PlayerMovement : MonoBehaviour
 
             rotationX -= mouseDelta.y * lookSpeed * 0.1f;
             rotationX = Mathf.Clamp(rotationX, -lookXLimit, lookXLimit);
-            playerCamera.transform.localRotation = Quaternion.Euler(rotationX, 0, 0);
+            cameraPivot.localRotation = Quaternion.Euler(rotationX, 0, 0);
 
             // Rotate body with camera
             transform.rotation *= Quaternion.Euler(0, mouseDelta.x * lookSpeed * 0.1f, 0);
@@ -193,14 +205,45 @@ public class PlayerMovement : MonoBehaviour
         ch.Move(finalMove * Time.deltaTime);
     }
 
+    /// Called by CapsuleSwitcher when this capsule becomes the one you control.
+    public void Possess()
+    {
+        isActive = true;
+
+        if (vcam != null)
+        {
+            // Raise this vcam's priority above the others so CinemachineBrain blends to it.
+            Debug.Log($"Possessing {name}, raising {vcam.Priority.Value} priority to 20");
+            vcam.Priority = new PrioritySettings { Enabled = true, Value = 20 };
+        }
+
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+    }
+
+    /// Called by CapsuleSwitcher when control moves to a different capsule.
+    public void Unpossess()
+    {
+        isActive = false;
+        velocity = Vector3.zero;
+
+        if (vcam != null)
+        {
+            // Lower vcam priority
+            Debug.Log($"Unpossessing {name}, lowering {vcam.Priority.Value} priority to 0");
+            vcam.Priority = new PrioritySettings { Enabled = false, Value = 0 };
+        }
+    }
 
     private Vector3 getHorizontalAxis()
     {
+        
         bool input_right = Keyboard.current.dKey.isPressed || Keyboard.current.rightArrowKey.isPressed;
         bool input_left = Keyboard.current.aKey.isPressed || Keyboard.current.leftArrowKey.isPressed;
         bool input_forward = Keyboard.current.wKey.isPressed || Keyboard.current.upArrowKey.isPressed;
         bool input_back = Keyboard.current.sKey.isPressed || Keyboard.current.downArrowKey.isPressed;
 
+       
         float x = 0;
         float z = 0;
 
@@ -209,6 +252,8 @@ public class PlayerMovement : MonoBehaviour
             z = +1;
         }
 
+       
+    
         if (input_right)
         {
             x = +1;
@@ -219,6 +264,7 @@ public class PlayerMovement : MonoBehaviour
             z = - 1;
         }
 
+      
         if (input_left)
         {
             x = -1;
