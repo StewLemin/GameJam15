@@ -17,10 +17,10 @@ public class PlayerMovement : MonoBehaviour
     
     private float gravity = 120f;
 
-    private float walkAcceleration = 10f;
-    private float runAcceleration = 50f;
+    private float walkAcceleration = 70f;
+    private float runAcceleration = 150f;
 
-    private float horizontalDecceleration = 70f;
+    private float horizontalDecceleration = 210f;
     
     
     
