@@ -13,9 +13,9 @@ public class PlayerMovement : MonoBehaviour
     private float sprintSpeed = 10f;
     private float jumpForce = 20f;
 
-    private float jumpDecceleration = 80f;
+    private float jumpDecceleration = 60f;
     
-    private float gravity = 120f;
+    private float gravity = 80f;
 
     private float walkAcceleration = 70f;
     private float runAcceleration = 150f;
