@@ -11,7 +11,7 @@ public class PlayerMovement : MonoBehaviour
     public float moveSpeed = 5f;
 
     public float sprintSpeed = 10f;
-    public float jumpForce = 7f;
+    public float jumpForce = 70f;
     public float gravity = 10f;
 
     public float walkAcceleration = 0.1f;
@@ -71,12 +71,20 @@ public class PlayerMovement : MonoBehaviour
     public float coyoteTime = 0.1f;
     public float jumpBuffer = 0.1f;
 
-    [Header("Possession")]
-    [Tooltip("Only the currently-possessed capsule reads input and drives its vcam.")]
-    public bool isActive = true;
+    [Header("Possession")] [Tooltip("Only the currently-possessed capsule reads input and drives its vcam.")]
+    public bool isActive;
 
     void Start()
     {
+        if (gameObject.name == "FirstPlayer")
+        {
+            isActive = true;
+        }
+        else
+        {
+            isActive = false;
+        }
+
         ch = GetComponent<CharacterController>();
 
         if (isActive) Possess();
@@ -129,16 +137,15 @@ public class PlayerMovement : MonoBehaviour
                 vState = VerticalState.FALLING;
             }
 
+        if (ch.isGrounded && vState == VerticalState.JUMPING)
+        {
+            vState = VerticalState.JUMPING;
+        }
+
         if (Keyboard.current.leftShiftKey.isPressed && hState == HorizontalState.WALK)
             {
                 hState = HorizontalState.RUN;
             }
-
-        if (Keyboard.current.spaceKey.isPressed && vState == VerticalState.GROUNDED)
-            {
-                vState = VerticalState.JUMPING;
-            }
-        
         
         Debug.Log(hState);
         Debug.Log(vState);
@@ -191,16 +198,23 @@ public class PlayerMovement : MonoBehaviour
                 if (velocity.y < 0) velocity.y = -2f;
                 if (Keyboard.current.spaceKey.isPressed)
                 {
-                    velocity.y = Mathf.Sqrt(jumpForce * -2f * gravity);
+                    velocity.y = jumpForce;
                     vState = VerticalState.JUMPING;
+                    Debug.Log("jump works");
                 }
+
+                coyoteTime = 0.1f;
+                jumpBuffer = 0.1f;
                 break;
 
             case VerticalState.JUMPING:
             case VerticalState.FALLING:
                 velocity.y -= gravity * Time.deltaTime;
+                if (ch.isGrounded && velocity.y < 0)
+                    vState = VerticalState.GROUNDED;
                 break;
         }
+
 
         Vector3 finalMove = horizontalVelocity + Vector3.up * velocity.y;
         ch.Move(finalMove * Time.deltaTime);
