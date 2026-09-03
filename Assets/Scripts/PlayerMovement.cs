@@ -8,19 +8,19 @@ using Unity.Cinemachine;
 public class PlayerMovement : MonoBehaviour
 {
     [Header("Movement")]
-    public float moveSpeed = 5f;
+    private float moveSpeed = 5f;
 
-    public float sprintSpeed = 10f;
+    private float sprintSpeed = 10f;
     private float jumpForce = 20f;
 
-    private float jumpDecceleration = 1;
+    private float jumpDecceleration = 80f;
     
-    private float gravity = 1.3f;
+    private float gravity = 120f;
 
-    public float walkAcceleration = 0.1f;
-    public float runAcceleration = 0.5f;
+    private float walkAcceleration = 10f;
+    private float runAcceleration = 50f;
 
-    public float horizontalDecceleration = 0.7f;
+    private float horizontalDecceleration = 70f;
     
     
     
@@ -171,24 +171,24 @@ public class PlayerMovement : MonoBehaviour
         switch (hState)
         {
             case HorizontalState.WALK:
-                currentFov = Mathf.MoveTowards(currentFov,idleFov,0.1f);
+                currentFov = Mathf.MoveTowards(currentFov,idleFov,0.1f * Time.deltaTime);
                 targetSpeed = moveSpeed;
                 rate = walkAcceleration;
                 break;
             case HorizontalState.IDLE:
-                currentFov = Mathf.MoveTowards(currentFov, walkFov, 1);
+                currentFov = Mathf.MoveTowards(currentFov, walkFov, 1 * Time.deltaTime);
                 targetSpeed = 0f;
                 rate = horizontalDecceleration;
                 break;
             case HorizontalState.RUN:
-                currentFov = Mathf.MoveTowards(currentFov,sprintFov,2);
+                currentFov = Mathf.MoveTowards(currentFov,sprintFov,2 * Time.deltaTime);
                 targetSpeed = sprintSpeed;
                 rate = runAcceleration;
                 break;
         }
 
         vcam.Lens.FieldOfView = currentFov;
-        currentSpeed = Mathf.MoveTowards(currentSpeed, targetSpeed, rate);
+        currentSpeed = Mathf.MoveTowards(currentSpeed, targetSpeed, rate * Time.deltaTime);
         Vector3 horizontalVelocity = currentSpeed * direction;
         
         
@@ -213,13 +213,13 @@ public class PlayerMovement : MonoBehaviour
                 }
                 else
                 {
-                    velocity.y = velocity.y - jumpDecceleration;
+                    velocity.y = velocity.y - jumpDecceleration * Time.deltaTime;
                 }
 
                 break;
                 
             case VerticalState.FALLING:
-                velocity.y -= gravity;
+                velocity.y -= gravity * Time.deltaTime;
                 
                 if (ch.isGrounded && velocity.y < 0)
                     vState = VerticalState.GROUNDED;
@@ -298,5 +298,5 @@ public class PlayerMovement : MonoBehaviour
 
         Vector3 direction = new Vector3(x, 0, z);
         return direction;
-    }
+    }	
 }
