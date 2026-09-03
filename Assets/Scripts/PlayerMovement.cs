@@ -141,6 +141,7 @@ public class PlayerMovement : MonoBehaviour
         
         
         Debug.Log(hState);
+        Debug.Log(vState);
         
             Vector2 mouseDelta = Mouse.current.delta.ReadValue();
 
@@ -197,7 +198,7 @@ public class PlayerMovement : MonoBehaviour
 
             case VerticalState.JUMPING:
             case VerticalState.FALLING:
-                velocity.y += gravity * Time.deltaTime;
+                velocity.y -= gravity * Time.deltaTime;
                 break;
         }
 
