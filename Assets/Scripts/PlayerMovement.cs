@@ -11,8 +11,11 @@ public class PlayerMovement : MonoBehaviour
     public float moveSpeed = 5f;
 
     public float sprintSpeed = 10f;
-    public float jumpForce = 70f;
-    public float gravity = 10f;
+    private float jumpForce = 20f;
+
+    private float jumpDecceleration = 1;
+    
+    private float gravity = 1.3f;
 
     public float walkAcceleration = 0.1f;
     public float runAcceleration = 0.5f;
@@ -32,6 +35,12 @@ public class PlayerMovement : MonoBehaviour
     public float lookXLimit = 85f; // look up/down constraint
 
     private float rotationX = 0f;
+
+    private int idleFov = 78;
+    private int walkFov = 80;
+
+    private int sprintFov = 90;
+    
     
     
     //StateMachines
@@ -64,7 +73,8 @@ public class PlayerMovement : MonoBehaviour
     private Vector3 horizontalVelocity;
 
     private float currentSpeed = 0f;
-    
+
+    private float startHeight;
 
 
     //QOL 
@@ -76,14 +86,6 @@ public class PlayerMovement : MonoBehaviour
 
     void Start()
     {
-        if (gameObject.name == "FirstPlayer")
-        {
-            isActive = true;
-        }
-        else
-        {
-            isActive = false;
-        }
 
         ch = GetComponent<CharacterController>();
 
@@ -105,12 +107,12 @@ public class PlayerMovement : MonoBehaviour
         
         coyoteTime = coyoteTime - Time.deltaTime;
         jumpBuffer = jumpBuffer - Time.deltaTime;
-        
+
         if (ch.isGrounded)
         {
             vState = VerticalState.GROUNDED;
         }
-        else if(!ch.isGrounded && vState != VerticalState.JUMPING)
+        else if (!ch.isGrounded && vState != VerticalState.JUMPING)
         {
             vState = VerticalState.FALLING;
         }
@@ -137,10 +139,6 @@ public class PlayerMovement : MonoBehaviour
                 vState = VerticalState.FALLING;
             }
 
-        if (ch.isGrounded && vState == VerticalState.JUMPING)
-        {
-            vState = VerticalState.JUMPING;
-        }
 
         if (Keyboard.current.leftShiftKey.isPressed && hState == HorizontalState.WALK)
             {
@@ -170,24 +168,28 @@ public class PlayerMovement : MonoBehaviour
 
         float targetSpeed = 0f;
         float rate = horizontalDecceleration;
+        float currentFov = vcam.Lens.FieldOfView;
         
         switch (hState)
         {
             case HorizontalState.WALK:
+                currentFov = Mathf.MoveTowards(currentFov,idleFov,0.1f);
                 targetSpeed = moveSpeed;
                 rate = walkAcceleration;
                 break;
             case HorizontalState.IDLE:
+                currentFov = Mathf.MoveTowards(currentFov, walkFov, 1);
                 targetSpeed = 0f;
                 rate = horizontalDecceleration;
                 break;
             case HorizontalState.RUN:
+                currentFov = Mathf.MoveTowards(currentFov,sprintFov,2);
                 targetSpeed = sprintSpeed;
                 rate = runAcceleration;
                 break;
         }
 
-       
+        vcam.Lens.FieldOfView = currentFov;
         currentSpeed = Mathf.MoveTowards(currentSpeed, targetSpeed, rate);
         Vector3 horizontalVelocity = currentSpeed * direction;
         
@@ -200,7 +202,6 @@ public class PlayerMovement : MonoBehaviour
                 {
                     velocity.y = jumpForce;
                     vState = VerticalState.JUMPING;
-                    Debug.Log("jump works");
                 }
 
                 coyoteTime = 0.1f;
@@ -208,8 +209,21 @@ public class PlayerMovement : MonoBehaviour
                 break;
 
             case VerticalState.JUMPING:
+                Debug.Log(velocity.y);
+                if (velocity.y < 0)
+                {
+                    vState =  VerticalState.FALLING;
+                }
+                else
+                {
+                    velocity.y = velocity.y - jumpDecceleration;
+                }
+
+                break;
+                
             case VerticalState.FALLING:
-                velocity.y -= gravity * Time.deltaTime;
+                velocity.y -= gravity;
+                
                 if (ch.isGrounded && velocity.y < 0)
                     vState = VerticalState.GROUNDED;
                 break;
