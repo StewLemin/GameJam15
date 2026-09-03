@@ -12,7 +12,7 @@ public class CapsuleSwitcher : MonoBehaviour
     public PlayerMovement[] capsules;
 
     [Tooltip("Max distance the look-ray checks for a switchable capsule.")]
-    public float interactRange = 15f;
+    public float interactRange = 45f;
 
     [Tooltip("Layers the interact raycast should hit. Defaults to everything.")]
     public LayerMask interactMask = ~0;

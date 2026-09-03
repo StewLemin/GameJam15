@@ -1,3 +1,5 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem; // <-- so the new system
 using Unity.Cinemachine;
@@ -7,8 +9,21 @@ public class PlayerMovement : MonoBehaviour
 {
     [Header("Movement")]
     public float moveSpeed = 5f;
-    public float jumpHeight = 1f;
-    public float gravity = -9.81f;
+
+    public float sprintSpeed = 10f;
+    private float jumpForce = 20f;
+
+    private float jumpDecceleration = 1;
+    
+    private float gravity = 1.3f;
+
+    public float walkAcceleration = 0.1f;
+    public float runAcceleration = 0.5f;
+
+    public float horizontalDecceleration = 0.7f;
+    
+    
+    
     private CharacterController ch;
     private Vector3 velocity;
 
@@ -21,16 +36,67 @@ public class PlayerMovement : MonoBehaviour
 
     private float rotationX = 0f;
 
-    [Header("Possession")]
-    [Tooltip("Only the currently-possessed capsule reads input and drives its vcam.")]
-    public bool isActive = true;
+    private int idleFov = 78;
+    private int walkFov = 80;
+
+    private int sprintFov = 90;
+    
+    
+    
+    //StateMachines
+    
+    private enum HorizontalState{
+        IDLE,
+        WALK,
+        RUN
+    }
+
+    private enum VerticalState
+    {
+        GROUNDED,
+        JUMPING,
+        FALLING
+    }
+
+    private enum MindTransferState
+    {
+        INACTIVE,
+        TRANSITIONING,
+        TRANSITIONED,
+        COOLDOWN
+    }
+
+    private HorizontalState hState;
+    private VerticalState vState;
+    private MindTransferState mState;
+
+    private Vector3 horizontalVelocity;
+
+    private float currentSpeed = 0f;
+
+    private float startHeight;
+
+
+    //QOL 
+    public float coyoteTime = 0.1f;
+    public float jumpBuffer = 0.1f;
+
+    [Header("Possession")] [Tooltip("Only the currently-possessed capsule reads input and drives its vcam.")]
+    public bool isActive;
 
     void Start()
     {
+
         ch = GetComponent<CharacterController>();
 
         if (isActive) Possess();
         else Unpossess();
+        Cursor.lockState = CursorLockMode.Locked; // center cursor
+        Cursor.visible = false; // hide cursor
+        hState =  HorizontalState.IDLE;
+        vState = VerticalState.FALLING;
+        mState = MindTransferState.INACTIVE;
+        horizontalVelocity = Vector3.zero;
     }
 
     void Update()
@@ -38,49 +104,50 @@ public class PlayerMovement : MonoBehaviour
         if (!isActive) return; // capsules we're not currently controlling ignore input entirely
                                // Will add NPC behavior here later
 
-        if (Keyboard.current != null)
+        
+        coyoteTime = coyoteTime - Time.deltaTime;
+        jumpBuffer = jumpBuffer - Time.deltaTime;
+
+        if (ch.isGrounded)
         {
-            // Sprinting
-            if (Keyboard.current.leftShiftKey.isPressed)
-            {
-                moveSpeed = 8f;
-            }
-            else
-            {
-                moveSpeed = 5f;
-            }
+            vState = VerticalState.GROUNDED;
+        }
+        else if (!ch.isGrounded && vState != VerticalState.JUMPING)
+        {
+            vState = VerticalState.FALLING;
+        }
+        
+        Vector3 direction = getHorizontalAxis();
 
-            // WASD Movement
-            float x = 0f;
-            float z = 0f;
-
-            if (Keyboard.current.dKey.isPressed || Keyboard.current.rightArrowKey.isPressed) x = 1f;
-            if (Keyboard.current.aKey.isPressed || Keyboard.current.leftArrowKey.isPressed) x = -1f;
-            if (Keyboard.current.wKey.isPressed || Keyboard.current.upArrowKey.isPressed) z = 1f;
-            if (Keyboard.current.sKey.isPressed || Keyboard.current.downArrowKey.isPressed) z = -1f;
-
-            // Move in direction of camera
-            Vector3 move = (transform.forward * z) + (transform.right * x);
-            ch.Move(move * moveSpeed * Time.deltaTime);
-
-            // Jumping
-            if (ch.isGrounded && velocity.y < 0)
-            {
-                velocity.y = -2f; // was originally 0f but this seems to help the character stick to the floor better
-            }
-
-            if (Keyboard.current.spaceKey.isPressed && ch.isGrounded)
-            {
-                velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
-            }
-
-            // adding the gravity and moving the character
-            velocity.y += gravity * Time.deltaTime;
-            ch.Move(velocity * Time.deltaTime);
+        if (direction != Vector3.zero)
+        {
+            hState = HorizontalState.WALK;
         }
 
-        if (Mouse.current != null && cameraPivot != null)
-        {
+        else
+        { 
+            hState = HorizontalState.IDLE;
+        }
+
+            
+        if (ch.isGrounded)
+            {
+                vState = VerticalState.GROUNDED;
+            }
+        else if(!ch.isGrounded && vState != VerticalState.JUMPING)
+            {
+                vState = VerticalState.FALLING;
+            }
+
+
+        if (Keyboard.current.leftShiftKey.isPressed && hState == HorizontalState.WALK)
+            {
+                hState = HorizontalState.RUN;
+            }
+        
+        Debug.Log(hState);
+        Debug.Log(vState);
+        
             Vector2 mouseDelta = Mouse.current.delta.ReadValue();
 
             rotationX -= mouseDelta.y * lookSpeed * 0.1f;
@@ -89,7 +156,82 @@ public class PlayerMovement : MonoBehaviour
 
             // Rotate body with camera
             transform.rotation *= Quaternion.Euler(0, mouseDelta.x * lookSpeed * 0.1f, 0);
+
+            float h = getHorizontalAxis().x;
+            float v = getHorizontalAxis().z;
+
+            Vector3 forward = transform.TransformDirection(Vector3.forward);
+            Vector3 right = transform.TransformDirection(Vector3.right);
+            direction = (forward * v + right * h);
+        
+        direction = direction.normalized;
+
+        float targetSpeed = 0f;
+        float rate = horizontalDecceleration;
+        float currentFov = vcam.Lens.FieldOfView;
+        
+        switch (hState)
+        {
+            case HorizontalState.WALK:
+                currentFov = Mathf.MoveTowards(currentFov,idleFov,0.1f);
+                targetSpeed = moveSpeed;
+                rate = walkAcceleration;
+                break;
+            case HorizontalState.IDLE:
+                currentFov = Mathf.MoveTowards(currentFov, walkFov, 1);
+                targetSpeed = 0f;
+                rate = horizontalDecceleration;
+                break;
+            case HorizontalState.RUN:
+                currentFov = Mathf.MoveTowards(currentFov,sprintFov,2);
+                targetSpeed = sprintSpeed;
+                rate = runAcceleration;
+                break;
         }
+
+        vcam.Lens.FieldOfView = currentFov;
+        currentSpeed = Mathf.MoveTowards(currentSpeed, targetSpeed, rate);
+        Vector3 horizontalVelocity = currentSpeed * direction;
+        
+        
+        switch (vState)
+        {
+            case VerticalState.GROUNDED:
+                if (velocity.y < 0) velocity.y = -2f;
+                if (Keyboard.current.spaceKey.isPressed)
+                {
+                    velocity.y = jumpForce;
+                    vState = VerticalState.JUMPING;
+                }
+
+                coyoteTime = 0.1f;
+                jumpBuffer = 0.1f;
+                break;
+
+            case VerticalState.JUMPING:
+                Debug.Log(velocity.y);
+                if (velocity.y < 0)
+                {
+                    vState =  VerticalState.FALLING;
+                }
+                else
+                {
+                    velocity.y = velocity.y - jumpDecceleration;
+                }
+
+                break;
+                
+            case VerticalState.FALLING:
+                velocity.y -= gravity;
+                
+                if (ch.isGrounded && velocity.y < 0)
+                    vState = VerticalState.GROUNDED;
+                break;
+        }
+
+
+        Vector3 finalMove = horizontalVelocity + Vector3.up * velocity.y;
+        ch.Move(finalMove * Time.deltaTime);
     }
 
     /// Called by CapsuleSwitcher when this capsule becomes the one you control.
@@ -120,5 +262,44 @@ public class PlayerMovement : MonoBehaviour
             Debug.Log($"Unpossessing {name}, lowering {vcam.Priority.Value} priority to 0");
             vcam.Priority = new PrioritySettings { Enabled = false, Value = 0 };
         }
+    }
+
+    private Vector3 getHorizontalAxis()
+    {
+        
+        bool input_right = Keyboard.current.dKey.isPressed || Keyboard.current.rightArrowKey.isPressed;
+        bool input_left = Keyboard.current.aKey.isPressed || Keyboard.current.leftArrowKey.isPressed;
+        bool input_forward = Keyboard.current.wKey.isPressed || Keyboard.current.upArrowKey.isPressed;
+        bool input_back = Keyboard.current.sKey.isPressed || Keyboard.current.downArrowKey.isPressed;
+
+       
+        float x = 0;
+        float z = 0;
+
+        if (input_forward)
+        {
+            z = +1;
+        }
+
+       
+    
+        if (input_right)
+        {
+            x = +1;
+        }
+
+        if (input_back)
+        {
+            z = - 1;
+        }
+
+      
+        if (input_left)
+        {
+            x = -1;
+        }
+
+        Vector3 direction = new Vector3(x, 0, z);
+        return direction;
     }
 }
