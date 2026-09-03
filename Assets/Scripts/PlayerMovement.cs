@@ -145,8 +145,6 @@ public class PlayerMovement : MonoBehaviour
                 hState = HorizontalState.RUN;
             }
         
-        Debug.Log(hState);
-        Debug.Log(vState);
         
             Vector2 mouseDelta = Mouse.current.delta.ReadValue();
 
@@ -209,7 +207,6 @@ public class PlayerMovement : MonoBehaviour
                 break;
 
             case VerticalState.JUMPING:
-                Debug.Log(velocity.y);
                 if (velocity.y < 0)
                 {
                     vState =  VerticalState.FALLING;
