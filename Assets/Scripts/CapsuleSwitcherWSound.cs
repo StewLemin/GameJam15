@@ -32,9 +32,13 @@ public class CapsuleSwitcherWSound : MonoBehaviour
     private PlayerMovement current;
     private PlayerMovement lookTarget;
     private AudioSource audioSource;
+    [Tooltip("Timer needed for losing to work")]
+    public TimerScript timer;
 
-	public MindTransferEffect effect;
+    public bool hasTeleported = false;
 
+    
+    
     void Start()
     {
         // Cache the AudioSource component on this GameObject
@@ -61,6 +65,7 @@ public class CapsuleSwitcherWSound : MonoBehaviour
         if (current == null) return;
 
         UpdateHighlight();
+        
 
         if (Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame)
         {
@@ -125,6 +130,13 @@ public class CapsuleSwitcherWSound : MonoBehaviour
 
         if (lookTarget.highlight != null)
         {
+            if (hasTeleported == false)
+            {
+                Debug.Log("reaches firest teleport");
+                timer.StartTimer();
+                hasTeleported = true;
+            }
+
             // set the highlight off before switching, so we don't 
             // leave it on when we switch to a new capsule
             lookTarget.highlight.SetHighlighted(false);

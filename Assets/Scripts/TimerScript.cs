@@ -5,8 +5,6 @@ public class TimerScript : MonoBehaviour
 {
     [SerializeField] TextMeshProUGUI timerText;
     
-    [SerializeField] Canvas loseScreen;
-
     [SerializeField] float initialTime = 20f;
 
     private float currentTime;
@@ -17,10 +15,10 @@ public class TimerScript : MonoBehaviour
     
     public LevelLoader levelLoader;
 
-    void Start()
+    public void StartTimer()
     {
         currentTime = initialTime;
-        loseScreen.enabled = false;
+        active = true;
     }
 
     public void StopTimer()

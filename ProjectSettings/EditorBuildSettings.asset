@@ -15,12 +15,12 @@ EditorBuildSettings:
     path: Assets/Scenes/Level 1.unity
     guid: dac9f92e071604440b015d3084b34fc5
   - enabled: 0
-    path: Assets/Scenes/IntroLevelOld.unity
+    path: Assets/IntroLevel.unity
     guid: 1de2282bcbb724fbaaad1f336f0f3bf7
   - enabled: 0
     path: Assets/CedricTest.unity
     guid: 13fdf931efb0dfb4bb94fbe93b6fe4f8
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Level 1.unity
     guid: dac9f92e071604440b015d3084b34fc5
   - enabled: 0
