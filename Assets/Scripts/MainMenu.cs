@@ -46,4 +46,4 @@ public class MenuManager : MonoBehaviour
         Level1Button.SetActive(false);
         GoBackButton.SetActive(false);
     }
-}
+}  
