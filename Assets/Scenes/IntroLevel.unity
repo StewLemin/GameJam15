@@ -13309,6 +13309,10 @@ PrefabInstance:
       value: WinLossMechanic
       objectReference: {fileID: 0}
     - target: {fileID: 5987775060880100898, guid: 29c7bdfb242c084bd84b9a87983885e0, type: 3}
+      propertyPath: initialTime
+      value: 22
+      objectReference: {fileID: 0}
+    - target: {fileID: 5987775060880100898, guid: 29c7bdfb242c084bd84b9a87983885e0, type: 3}
       propertyPath: levelLoader
       value: 
       objectReference: {fileID: 1108999368}
