@@ -9,7 +9,6 @@ public class MenuManager : MonoBehaviour
     [Header("UI")]
     public GameObject TutorialButton;
     public GameObject Level1Button;
-    public GameObject Level2Button;
     public GameObject GoBackButton;
 
     void Start()
@@ -37,7 +36,6 @@ public class MenuManager : MonoBehaviour
         // Show buttons
         TutorialButton.SetActive(true);
         Level1Button.SetActive(true);
-        Level2Button.SetActive(true);
         GoBackButton.SetActive(true);
     }
 
@@ -46,7 +44,6 @@ public class MenuManager : MonoBehaviour
         // Hide buttons
         TutorialButton.SetActive(false);
         Level1Button.SetActive(false);
-        Level2Button.SetActive(false);
         GoBackButton.SetActive(false);
     }
 }
