@@ -1,51 +1,71 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using System.Collections.Generic;
 using UnityEngine.EventSystems;
 
 public class MenuManager : MonoBehaviour
 {
+    public static MenuManager Instance { get; private set; }
+
+    [Header("UI")]
     public GameObject TutorialButton;
     public GameObject Level1Button;
     public GameObject Level2Button;
     public GameObject GoBackButton;
 
+    public bool IsMenuOpen { get; private set; }
+    private string currentLevelScene = null; // null = no level loaded yet
+
     private List<AudioListener> disabledListeners = new List<AudioListener>();
     private List<EventSystem> disabledEventSystems = new List<EventSystem>();
 
-    public void Start()
+    void Awake()
     {
-        // Hide the level select menu
-        HideLevelSelectMenu();
-
-        // Show cursor again
-        Cursor.lockState = CursorLockMode.None;
-        Cursor.visible = true;
-
-        // Pause everything
-        Time.timeScale = 0f;
-
-        DisableOtherAudioListeners();
-        DisableOtherEventSystems();
+        // MainMenu is meant to be a single persistent scene - guard against accidental duplicates
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        Instance = this;
     }
 
+    void Start()
+    {
+        OpenMenu(); // game boots straight into the menu, nothing else loaded yet
+        CloseSelect(); // hide the level select buttons until the player clicks "Play"
+    }
+
+    // Wired to TutorialButton / Level1Button / Level2Button
     public void LoadScene(string sceneName)
     {
+        Debug.Log($"Loading scene: {sceneName}");
+        // If a level is already running, swap it rather than stacking a second one
+        if (currentLevelScene != null && currentLevelScene != sceneName)
+        {
+            SceneManager.UnloadSceneAsync(currentLevelScene);
+        }
+
+        currentLevelScene = sceneName;
         SceneManager.LoadScene(sceneName, LoadSceneMode.Additive);
-        SceneManager.UnloadSceneAsync("MainMenu");
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
-        Time.timeScale = 1f; // Resume time
+
+        // Make the level scene's own lighting/skybox settings apply instead of MainMenu's
+        SceneManager.SetActiveScene(SceneManager.GetSceneByName(sceneName));
+
+        CloseMenu();
     }
 
+    // Go back
     public void PlayPrevious()
     {
-        ReenableAudioListeners();
-        ReenableEventSystems();
-        SceneManager.UnloadSceneAsync("MainMenu");
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
-        Time.timeScale = 1f; // Resume time
+        if (currentLevelScene == null)
+        {
+            LoadScene("CedricTest");
+            CloseMenu();
+            return;
+        }
+        // nothing running, ignore
+        CloseMenu();
     }
 
     public void QuitGame()
@@ -53,14 +73,62 @@ public class MenuManager : MonoBehaviour
         Application.Quit();
     }
 
+    // Called on boot AND every time TAB is pressed mid-level
+    public void OpenMenu()
+    {
+        if (IsMenuOpen) return; // already open - this is what stops the TAB-spam bug
+        IsMenuOpen = true;
+
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+        Time.timeScale = 0f;
+
+        DisableOtherAudioListeners();
+        DisableOtherEventSystems();
+    }
+
+    private void CloseMenu()
+    {
+        IsMenuOpen = false;
+        Time.timeScale = 1f;
+
+        SceneManager.UnloadSceneAsync("MainMenu");
+
+        ReenableAudioListeners();
+        ReenableEventSystems();
+    }
+
+
+    public void OpenSelect()
+    {
+        // Can already unload the current level scene if one is running. 
+        if (currentLevelScene != null)
+        {
+            SceneManager.UnloadSceneAsync(currentLevelScene);
+            currentLevelScene = null;
+        }
+
+        // Show buttons
+        TutorialButton.SetActive(true);
+        Level1Button.SetActive(true);
+        Level2Button.SetActive(true);
+        GoBackButton.SetActive(true);
+    }
+
+    public void CloseSelect()
+    {
+        // Hide buttons
+        TutorialButton.SetActive(false);
+        Level1Button.SetActive(false);
+        Level2Button.SetActive(false);
+        GoBackButton.SetActive(false);
+    }
+
     private void DisableOtherAudioListeners()
     {
-        // FindObjectsByType finds listeners across ALL loaded scenes, active or not
-        AudioListener[] allListeners = FindObjectsByType<AudioListener>(FindObjectsSortMode.None);
-
-        foreach (var listener in allListeners)
+        disabledListeners.Clear();
+        foreach (var listener in FindObjectsByType<AudioListener>(FindObjectsSortMode.None))
         {
-            // Skip listeners that belong to this menu's own scene
             if (listener.gameObject.scene != gameObject.scene && listener.enabled)
             {
                 listener.enabled = false;
@@ -71,9 +139,8 @@ public class MenuManager : MonoBehaviour
 
     private void DisableOtherEventSystems()
     {
-        EventSystem[] allEventSystems = FindObjectsByType<EventSystem>(FindObjectsSortMode.None);
-
-        foreach (var es in allEventSystems)
+        disabledEventSystems.Clear();
+        foreach (var es in FindObjectsByType<EventSystem>(FindObjectsSortMode.None))
         {
             if (es.gameObject.scene != gameObject.scene && es.enabled)
             {
@@ -83,40 +150,15 @@ public class MenuManager : MonoBehaviour
         }
     }
 
-    private void ReenableEventSystems()
-    {
-        foreach (var es in disabledEventSystems)
-        {
-            if (es != null) es.enabled = true;
-        }
-        disabledEventSystems.Clear();
-    }
-
     private void ReenableAudioListeners()
     {
-        foreach (var listener in disabledListeners)
-        {
-            if (listener != null) listener.enabled = true;
-        }
+        foreach (var l in disabledListeners) if (l != null) l.enabled = true;
         disabledListeners.Clear();
     }
 
-    public void ShowLevelSelectMenu()
+    private void ReenableEventSystems()
     {
-        // Show the TutorialButton, Level1Button, Level2Button, GoBackButton
-        // If this button is pressed, we can unload all scenes except for the MainMenu
-        TutorialButton.SetActive(true);
-        Level1Button.SetActive(true);
-        Level2Button.SetActive(true);
-        GoBackButton.SetActive(true);
-    }
-
-    public void HideLevelSelectMenu()
-    {
-        // Hide the TutorialButton, Level1Button, Level2Button, GoBackButton
-        TutorialButton.SetActive(false);
-        Level1Button.SetActive(false);
-        Level2Button.SetActive(false);
-        GoBackButton.SetActive(false);
+        foreach (var es in disabledEventSystems) if (es != null) es.enabled = true;
+        disabledEventSystems.Clear();
     }
 }

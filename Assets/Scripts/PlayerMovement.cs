@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem; // <-- so the new system
 using Unity.Cinemachine;
+using UnityEngine.SceneManagement;
 
 [RequireComponent(typeof(CharacterController))]
 public class PlayerMovement : MonoBehaviour
@@ -40,6 +41,12 @@ public class PlayerMovement : MonoBehaviour
 
         if (Keyboard.current != null)
         {
+            if (Keyboard.current.tabKey.wasPressedThisFrame)
+            {
+                // Open the menu
+                SceneManager.LoadScene("MainMenu", LoadSceneMode.Additive);
+            }
+
             // Sprinting
             if (Keyboard.current.leftShiftKey.isPressed)
             {
