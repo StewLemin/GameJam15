@@ -37,7 +37,6 @@ public class MenuManager : MonoBehaviour
         // Show buttons
         TutorialButton.SetActive(true);
         Level1Button.SetActive(true);
-        Level2Button.SetActive(true);
         GoBackButton.SetActive(true);
     }
 
@@ -46,7 +45,6 @@ public class MenuManager : MonoBehaviour
         // Hide buttons
         TutorialButton.SetActive(false);
         Level1Button.SetActive(false);
-        Level2Button.SetActive(false);
         GoBackButton.SetActive(false);
     }
 }
