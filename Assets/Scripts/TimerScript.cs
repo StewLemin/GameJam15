@@ -13,7 +13,7 @@ public class TimerScript : MonoBehaviour
 
     private float minTime = 0;
     
-    private bool active = true;
+    private bool active = false;
     
     public LevelLoader levelLoader;
 

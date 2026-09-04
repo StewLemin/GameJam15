@@ -121,7 +121,7 @@ public class CapsuleSwitcherWSound : MonoBehaviour
 
         // Play success sound when switching occurs
         PlaySound(teleportSuccessSound);
-		effect.playTransfer();
+		//effect.playTransfer();
 
         if (lookTarget.highlight != null)
         {

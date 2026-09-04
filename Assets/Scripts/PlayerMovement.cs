@@ -170,17 +170,17 @@ public class PlayerMovement : MonoBehaviour
         switch (hState)
         {
             case HorizontalState.WALK:
-                currentFov = Mathf.MoveTowards(currentFov, idleFov, 0.1f * Time.deltaTime);
+                currentFov = Mathf.MoveTowards(currentFov, idleFov, 10 * Time.deltaTime);
                 targetSpeed = moveSpeed;
                 rate = walkAcceleration;
                 break;
             case HorizontalState.IDLE:
-                currentFov = Mathf.MoveTowards(currentFov, walkFov, 1 * Time.deltaTime);
+                currentFov = Mathf.MoveTowards(currentFov, walkFov, 100 * Time.deltaTime);
                 targetSpeed = 0f;
                 rate = horizontalDecceleration;
                 break;
             case HorizontalState.RUN:
-                currentFov = Mathf.MoveTowards(currentFov, sprintFov, 2 * Time.deltaTime);
+                currentFov = Mathf.MoveTowards(currentFov, sprintFov, 200 * Time.deltaTime);
                 targetSpeed = sprintSpeed;
                 rate = runAcceleration;
                 break;
