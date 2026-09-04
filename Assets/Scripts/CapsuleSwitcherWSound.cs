@@ -33,6 +33,8 @@ public class CapsuleSwitcherWSound : MonoBehaviour
     private PlayerMovement lookTarget;
     private AudioSource audioSource;
 
+	public MindTransferEffect effect;
+
     void Start()
     {
         // Cache the AudioSource component on this GameObject
@@ -119,6 +121,7 @@ public class CapsuleSwitcherWSound : MonoBehaviour
 
         // Play success sound when switching occurs
         PlaySound(teleportSuccessSound);
+		//effect.playTransfer();
 
         if (lookTarget.highlight != null)
         {

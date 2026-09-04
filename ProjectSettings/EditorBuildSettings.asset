@@ -5,6 +5,9 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
+  - enabled: 0
+    path: Assets/Scenes/SampleScene.unity
+    guid: 99c9720ab356a0642a771bea13969a05
   - enabled: 1
     path: Assets/Scenes/MainMenu.unity
     guid: a6937e2d05d44054ea3b24bc8a290a36
@@ -12,14 +15,23 @@ EditorBuildSettings:
     path: Assets/Scenes/IntroLevelOld.unity
     guid: 1de2282bcbb724fbaaad1f336f0f3bf7
   - enabled: 1
-    path: Assets/CedricTest.unity
-    guid: 13fdf931efb0dfb4bb94fbe93b6fe4f8
-  - enabled: 1
     path: Assets/Scenes/Level 1.unity
     guid: dac9f92e071604440b015d3084b34fc5
   - enabled: 0
+    path: Assets/CedricTest.unity
+    guid: 13fdf931efb0dfb4bb94fbe93b6fe4f8
+  - enabled: 0
     path: Assets/Scenes/SampleScene.unity
     guid: 99c9720ab356a0642a771bea13969a05
+  - enabled: 0
+    path: Assets/AaronTest.unity
+    guid: 36436a7dfdfde483fba886f080e351f2
+  - enabled: 0
+    path: Assets/IntroLevel.unity
+    guid: 1de2282bcbb724fbaaad1f336f0f3bf7
+  - enabled: 0
+    path: Assets/Scenes/Level 1.unity
+    guid: dac9f92e071604440b015d3084b34fc5
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0

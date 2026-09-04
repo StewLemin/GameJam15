@@ -13,15 +13,17 @@ public class PlayerMovement : MonoBehaviour
     private float sprintSpeed = 10f;
     private float jumpForce = 20f;
 
-    private float jumpDecceleration = 80f;
-
-    private float gravity = 120f;
+    private float jumpDecceleration = 60f;
+    
+    private float gravity = 80f;
 
     private float walkAcceleration = 70f;
     private float runAcceleration = 150f;
 
     private float horizontalDecceleration = 210f;
-
+    
+    
+    
     private CharacterController ch;
     private Vector3 velocity;
 
@@ -101,6 +103,7 @@ public class PlayerMovement : MonoBehaviour
         if (!isActive) return; // capsules we're not currently controlling ignore input entirely
         if (PauseMenu.GameIsPaused) return; // don't move when paused              
 
+        
         coyoteTime = coyoteTime - Time.deltaTime;
         jumpBuffer = jumpBuffer - Time.deltaTime;
 
@@ -167,17 +170,17 @@ public class PlayerMovement : MonoBehaviour
         switch (hState)
         {
             case HorizontalState.WALK:
-                currentFov = Mathf.MoveTowards(currentFov, idleFov, 0.1f * Time.deltaTime);
+                currentFov = Mathf.MoveTowards(currentFov, idleFov, 10 * Time.deltaTime);
                 targetSpeed = moveSpeed;
                 rate = walkAcceleration;
                 break;
             case HorizontalState.IDLE:
-                currentFov = Mathf.MoveTowards(currentFov, walkFov, 1 * Time.deltaTime);
+                currentFov = Mathf.MoveTowards(currentFov, walkFov, 100 * Time.deltaTime);
                 targetSpeed = 0f;
                 rate = horizontalDecceleration;
                 break;
             case HorizontalState.RUN:
-                currentFov = Mathf.MoveTowards(currentFov, sprintFov, 2 * Time.deltaTime);
+                currentFov = Mathf.MoveTowards(currentFov, sprintFov, 200 * Time.deltaTime);
                 targetSpeed = sprintSpeed;
                 rate = runAcceleration;
                 break;
@@ -186,8 +189,8 @@ public class PlayerMovement : MonoBehaviour
         vcam.Lens.FieldOfView = currentFov;
         currentSpeed = Mathf.MoveTowards(currentSpeed, targetSpeed, rate * Time.deltaTime);
         Vector3 horizontalVelocity = currentSpeed * direction;
-
-
+        
+        
         switch (vState)
         {
             case VerticalState.GROUNDED:
