@@ -1,0 +1,3 @@
+# Use Unity Smart Merge for YAML-serialized Unity assets.
+*.unity merge=unityyamlmerge
+*.prefab merge=unityyamlmerge
