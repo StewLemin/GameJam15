@@ -40,12 +40,10 @@ public class PlayerMovement : MonoBehaviour
     private int walkFov = 80;
 
     private int sprintFov = 90;
-    
-    
-    
     //StateMachines
-    
-    private enum HorizontalState{
+
+    private enum HorizontalState
+    {
         IDLE,
         WALK,
         RUN
@@ -81,7 +79,8 @@ public class PlayerMovement : MonoBehaviour
     public float coyoteTime = 0.1f;
     public float jumpBuffer = 0.1f;
 
-    [Header("Possession")] [Tooltip("Only the currently-possessed capsule reads input and drives its vcam.")]
+    [Header("Possession")]
+    [Tooltip("Only the currently-possessed capsule reads input and drives its vcam.")]
     public bool isActive;
 
     void Start()
@@ -93,7 +92,7 @@ public class PlayerMovement : MonoBehaviour
         else Unpossess();
         Cursor.lockState = CursorLockMode.Locked; // center cursor
         Cursor.visible = false; // hide cursor
-        hState =  HorizontalState.IDLE;
+        hState = HorizontalState.IDLE;
         vState = VerticalState.FALLING;
         mState = MindTransferState.INACTIVE;
         horizontalVelocity = Vector3.zero;
@@ -102,7 +101,7 @@ public class PlayerMovement : MonoBehaviour
     void Update()
     {
         if (!isActive) return; // capsules we're not currently controlling ignore input entirely
-                               // Will add NPC behavior here later
+        if (PauseMenu.GameIsPaused) return; // don't move when paused              
 
         
         coyoteTime = coyoteTime - Time.deltaTime;
@@ -116,7 +115,7 @@ public class PlayerMovement : MonoBehaviour
         {
             vState = VerticalState.FALLING;
         }
-        
+
         Vector3 direction = getHorizontalAxis();
 
         if (direction != Vector3.zero)
@@ -125,53 +124,53 @@ public class PlayerMovement : MonoBehaviour
         }
 
         else
-        { 
+        {
             hState = HorizontalState.IDLE;
         }
 
-            
+
         if (ch.isGrounded)
-            {
-                vState = VerticalState.GROUNDED;
-            }
-        else if(!ch.isGrounded && vState != VerticalState.JUMPING)
-            {
-                vState = VerticalState.FALLING;
-            }
+        {
+            vState = VerticalState.GROUNDED;
+        }
+        else if (!ch.isGrounded && vState != VerticalState.JUMPING)
+        {
+            vState = VerticalState.FALLING;
+        }
 
 
         if (Keyboard.current.leftShiftKey.isPressed && hState == HorizontalState.WALK)
-            {
-                hState = HorizontalState.RUN;
-            }
-        
-        
-            Vector2 mouseDelta = Mouse.current.delta.ReadValue();
+        {
+            hState = HorizontalState.RUN;
+        }
 
-            rotationX -= mouseDelta.y * lookSpeed * 0.1f;
-            rotationX = Mathf.Clamp(rotationX, -lookXLimit, lookXLimit);
-            cameraPivot.localRotation = Quaternion.Euler(rotationX, 0, 0);
+        // Mouse movement
+        Vector2 mouseDelta = Mouse.current.delta.ReadValue();
 
-            // Rotate body with camera
-            transform.rotation *= Quaternion.Euler(0, mouseDelta.x * lookSpeed * 0.1f, 0);
+        rotationX -= mouseDelta.y * lookSpeed * 0.1f;
+        rotationX = Mathf.Clamp(rotationX, -lookXLimit, lookXLimit);
+        cameraPivot.localRotation = Quaternion.Euler(rotationX, 0, 0);
 
-            float h = getHorizontalAxis().x;
-            float v = getHorizontalAxis().z;
+        // Rotate body with camera
+        transform.rotation *= Quaternion.Euler(0, mouseDelta.x * lookSpeed * 0.1f, 0);
 
-            Vector3 forward = transform.TransformDirection(Vector3.forward);
-            Vector3 right = transform.TransformDirection(Vector3.right);
-            direction = (forward * v + right * h);
-        
+        float h = getHorizontalAxis().x;
+        float v = getHorizontalAxis().z;
+
+        Vector3 forward = transform.TransformDirection(Vector3.forward);
+        Vector3 right = transform.TransformDirection(Vector3.right);
+        direction = (forward * v + right * h);
+
         direction = direction.normalized;
 
         float targetSpeed = 0f;
         float rate = horizontalDecceleration;
         float currentFov = vcam.Lens.FieldOfView;
-        
+
         switch (hState)
         {
             case HorizontalState.WALK:
-                currentFov = Mathf.MoveTowards(currentFov,idleFov,0.1f * Time.deltaTime);
+                currentFov = Mathf.MoveTowards(currentFov, idleFov, 0.1f * Time.deltaTime);
                 targetSpeed = moveSpeed;
                 rate = walkAcceleration;
                 break;
@@ -181,7 +180,7 @@ public class PlayerMovement : MonoBehaviour
                 rate = horizontalDecceleration;
                 break;
             case HorizontalState.RUN:
-                currentFov = Mathf.MoveTowards(currentFov,sprintFov,2 * Time.deltaTime);
+                currentFov = Mathf.MoveTowards(currentFov, sprintFov, 2 * Time.deltaTime);
                 targetSpeed = sprintSpeed;
                 rate = runAcceleration;
                 break;
@@ -209,7 +208,7 @@ public class PlayerMovement : MonoBehaviour
             case VerticalState.JUMPING:
                 if (velocity.y < 0)
                 {
-                    vState =  VerticalState.FALLING;
+                    vState = VerticalState.FALLING;
                 }
                 else
                 {
@@ -217,10 +216,10 @@ public class PlayerMovement : MonoBehaviour
                 }
 
                 break;
-                
+
             case VerticalState.FALLING:
                 velocity.y -= gravity * Time.deltaTime;
-                
+
                 if (ch.isGrounded && velocity.y < 0)
                     vState = VerticalState.GROUNDED;
                 break;
@@ -263,13 +262,13 @@ public class PlayerMovement : MonoBehaviour
 
     private Vector3 getHorizontalAxis()
     {
-        
+
         bool input_right = Keyboard.current.dKey.isPressed || Keyboard.current.rightArrowKey.isPressed;
         bool input_left = Keyboard.current.aKey.isPressed || Keyboard.current.leftArrowKey.isPressed;
         bool input_forward = Keyboard.current.wKey.isPressed || Keyboard.current.upArrowKey.isPressed;
         bool input_back = Keyboard.current.sKey.isPressed || Keyboard.current.downArrowKey.isPressed;
 
-       
+
         float x = 0;
         float z = 0;
 
@@ -278,8 +277,8 @@ public class PlayerMovement : MonoBehaviour
             z = +1;
         }
 
-       
-    
+
+
         if (input_right)
         {
             x = +1;
@@ -287,10 +286,10 @@ public class PlayerMovement : MonoBehaviour
 
         if (input_back)
         {
-            z = - 1;
+            z = -1;
         }
 
-      
+
         if (input_left)
         {
             x = -1;
@@ -298,5 +297,5 @@ public class PlayerMovement : MonoBehaviour
 
         Vector3 direction = new Vector3(x, 0, z);
         return direction;
-    }	
+    }
 }
