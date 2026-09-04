@@ -1811,6 +1811,7 @@ GameObject:
   - component: {fileID: 459693754569094397}
   - component: {fileID: 2621253475188780659}
   - component: {fileID: 4739185173921028759}
+  - component: {fileID: 2823775060128249092}
   m_Layer: 5
   m_Name: WinScreen
   m_TagString: Untagged
@@ -1906,6 +1907,18 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
+--- !u!225 &2823775060128249092
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6156186786903690831}
+  m_Enabled: 1
+  m_Alpha: 0
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &6904219042337816779
 GameObject:
   m_ObjectHideFlags: 0
@@ -2282,6 +2295,7 @@ MonoBehaviour:
   timerText: {fileID: 3611352164149214038}
   loseScreen: {fileID: 9203262711171536188}
   initialTime: 20
+  levelLoader: {fileID: 0}
 --- !u!1 &7695709259656220751
 GameObject:
   m_ObjectHideFlags: 0
@@ -2294,6 +2308,7 @@ GameObject:
   - component: {fileID: 9203262711171536188}
   - component: {fileID: 779504584289957499}
   - component: {fileID: 3175626894054974686}
+  - component: {fileID: 9095793858444313203}
   m_Layer: 0
   m_Name: LoseScreen
   m_TagString: Untagged
@@ -2389,6 +2404,18 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
+--- !u!225 &9095793858444313203
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7695709259656220751}
+  m_Enabled: 1
+  m_Alpha: 0
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &7765526069819396424
 GameObject:
   m_ObjectHideFlags: 0
@@ -2516,6 +2543,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: '::'
   winScreen: {fileID: 459693754569094397}
   timer: {fileID: 4417149758006861743}
+  levelLoader: {fileID: 0}
 --- !u!1 &8575286742858414791
 GameObject:
   m_ObjectHideFlags: 0

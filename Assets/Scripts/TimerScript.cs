@@ -14,6 +14,8 @@ public class TimerScript : MonoBehaviour
     private float minTime = 0;
     
     private bool active = true;
+    
+    public LevelLoader levelLoader;
 
     void Start()
     {
@@ -48,7 +50,9 @@ public class TimerScript : MonoBehaviour
         else
         {
             currentTime = 0;
-            loseScreen.enabled = true;
+            int currentLevelIndex = levelLoader.getThisLevelIndex();
+            levelLoader.LoadScene(currentLevelIndex);
+            //loseScreen.enabled = true;
         }
         
         int minutes = Mathf.FloorToInt(currentTime / 60);
